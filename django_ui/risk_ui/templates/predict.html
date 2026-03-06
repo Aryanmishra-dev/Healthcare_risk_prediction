@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Diabetes Risk Prediction</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background: #f0f4f8;
+            color: #1a202c;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            padding: 2rem 1rem;
+        }
+
+        .container {
+            max-width: 600px;
+            width: 100%;
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 1.8rem;
+            margin-bottom: 0.5rem;
+            color: #2d3748;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #718096;
+            margin-bottom: 2rem;
+            font-size: 0.95rem;
+        }
+
+        .card {
+            background: #fff;
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.2rem;
+        }
+
+        label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 0.3rem;
+            font-size: 0.9rem;
+            color: #4a5568;
+        }
+
+        .hint {
+            font-size: 0.78rem;
+            color: #a0aec0;
+            margin-bottom: 0.3rem;
+        }
+
+        input[type="number"], select {
+            width: 100%;
+            padding: 0.6rem 0.8rem;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.2s;
+        }
+
+        input[type="number"]:focus, select:focus {
+            outline: none;
+            border-color: #4299e1;
+            box-shadow: 0 0 0 3px rgba(66,153,225,0.15);
+        }
+
+        .btn {
+            display: block;
+            width: 100%;
+            padding: 0.8rem;
+            background: #4299e1;
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.05rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .btn:hover { background: #3182ce; }
+
+        .result-card {
+            text-align: center;
+            padding: 2rem;
+        }
+
+        .risk-pct {
+            font-size: 3rem;
+            font-weight: 700;
+            margin: 0.5rem 0;
+        }
+
+        .risk-label {
+            font-size: 1.2rem;
+            font-weight: 600;
+            padding: 0.3rem 1rem;
+            border-radius: 20px;
+            display: inline-block;
+            margin-top: 0.5rem;
+        }
+
+        .risk-low      { color: #276749; background: #c6f6d5; }
+        .risk-moderate  { color: #975a16; background: #fefcbf; }
+        .risk-high      { color: #9b2c2c; background: #fed7d7; }
+
+        .error-msg {
+            background: #fed7d7;
+            color: #9b2c2c;
+            padding: 1rem;
+            border-radius: 8px;
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .two-col {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        @media (max-width: 500px) {
+            .two-col { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Diabetes Risk Prediction</h1>
+        <p class="subtitle">Enter your health indicators to estimate diabetes risk</p>
+
+        {% if error %}
+        <div class="error-msg">{{ error }}</div>
+        {% endif %}
+
+        {% if result %}
+        <div class="card result-card">
+            <p style="color:#718096; font-size:0.9rem;">Estimated Diabetes Risk</p>
+            <div class="risk-pct">{{ result.risk_percentage }}%</div>
+            <span class="risk-label
+                {% if result.risk_level == 'Low' %}risk-low
+                {% elif result.risk_level == 'Moderate' %}risk-moderate
+                {% else %}risk-high{% endif %}">
+                {{ result.risk_level }} Risk
+            </span>
+        </div>
+        {% endif %}
+
+        <div class="card">
+            <form method="POST" action="">
+                {% csrf_token %}
+
+                <div class="two-col">
+                    <div class="form-group">
+                        <label for="age">Age Group</label>
+                        <div class="hint">1 = 18-24, 7 = 45-49, 13 = 80+</div>
+                        <select name="age" id="age">
+                            <option value="1" {% if form_data.age == 1 %}selected{% endif %}>1 — 18-24</option>
+                            <option value="2" {% if form_data.age == 2 %}selected{% endif %}>2 — 25-29</option>
+                            <option value="3" {% if form_data.age == 3 %}selected{% endif %}>3 — 30-34</option>
+                            <option value="4" {% if form_data.age == 4 %}selected{% endif %}>4 — 35-39</option>
+                            <option value="5" {% if form_data.age == 5 %}selected{% endif %}>5 — 40-44</option>
+                            <option value="6" {% if form_data.age == 6 %}selected{% endif %}>6 — 45-49</option>
+                            <option value="7" {% if form_data.age == 7 %}selected{% endif %}>7 — 50-54</option>
+                            <option value="8" {% if form_data.age == 8 %}selected{% endif %}>8 — 55-59</option>
+                            <option value="9" {% if form_data.age == 9 %}selected{% endif %}>9 — 60-64</option>
+                            <option value="10" {% if form_data.age == 10 %}selected{% endif %}>10 — 65-69</option>
+                            <option value="11" {% if form_data.age == 11 %}selected{% endif %}>11 — 70-74</option>
+                            <option value="12" {% if form_data.age == 12 %}selected{% endif %}>12 — 75-79</option>
+                            <option value="13" {% if form_data.age == 13 %}selected{% endif %}>13 — 80+</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="bmi">BMI</label>
+                        <div class="hint">e.g. 27.5</div>
+                        <input type="number" name="bmi" id="bmi" step="0.1" min="10" max="80"
+                               value="{{ form_data.bmi|default:'25.0' }}">
+                    </div>
+                </div>
+
+                <div class="two-col">
+                    <div class="form-group">
+                        <label for="bp">High Blood Pressure</label>
+                        <select name="bp" id="bp">
+                            <option value="1" {% if form_data.bp == 1 %}selected{% endif %}>Yes</option>
+                            <option value="2" {% if form_data.bp == 2 %}selected{% endif %} selected>No</option>
+                            <option value="3" {% if form_data.bp == 3 %}selected{% endif %}>Borderline</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="cholesterol">High Cholesterol</label>
+                        <select name="cholesterol" id="cholesterol">
+                            <option value="1" {% if form_data.cholesterol == 1 %}selected{% endif %}>Yes</option>
+                            <option value="2" {% if form_data.cholesterol == 2 %}selected{% endif %} selected>No</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="two-col">
+                    <div class="form-group">
+                        <label for="smoker">Smoker (100+ cigarettes ever)</label>
+                        <select name="smoker" id="smoker">
+                            <option value="1" {% if form_data.smoker == 1 %}selected{% endif %}>Yes</option>
+                            <option value="2" {% if form_data.smoker == 2 %}selected{% endif %} selected>No</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="activity">Physical Activity</label>
+                        <select name="activity" id="activity">
+                            <option value="1" {% if form_data.activity == 1 %}selected{% endif %} selected>Active</option>
+                            <option value="2" {% if form_data.activity == 2 %}selected{% endif %}>Inactive</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="two-col">
+                    <div class="form-group">
+                        <label for="health">General Health</label>
+                        <select name="health" id="health">
+                            <option value="1" {% if form_data.health == 1 %}selected{% endif %}>1 — Excellent</option>
+                            <option value="2" {% if form_data.health == 2 %}selected{% endif %}>2 — Very Good</option>
+                            <option value="3" {% if form_data.health == 3 %}selected{% endif %} selected>3 — Good</option>
+                            <option value="4" {% if form_data.health == 4 %}selected{% endif %}>4 — Fair</option>
+                            <option value="5" {% if form_data.health == 5 %}selected{% endif %}>5 — Poor</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="mental">Mental Health (bad days)</label>
+                        <div class="hint">Days in past 30 with poor mental health</div>
+                        <input type="number" name="mental" id="mental" min="0" max="30"
+                               value="{{ form_data.mental|default:'0' }}">
+                    </div>
+                </div>
+
+                <button type="submit" class="btn">Predict Diabetes Risk</button>
+            </form>
+        </div>
+    </div>
+</body>
+</html>

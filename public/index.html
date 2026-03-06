@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Diabetes Risk Prediction</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background: #f0f4f8;
+            color: #1a202c;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            padding: 2rem 1rem;
+        }
+
+        .container { max-width: 600px; width: 100%; }
+
+        h1 {
+            text-align: center;
+            font-size: 1.8rem;
+            margin-bottom: 0.5rem;
+            color: #2d3748;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #718096;
+            margin-bottom: 2rem;
+            font-size: 0.95rem;
+        }
+
+        .card {
+            background: #fff;
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group { margin-bottom: 1.2rem; }
+
+        label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 0.3rem;
+            font-size: 0.9rem;
+            color: #4a5568;
+        }
+
+        .hint {
+            font-size: 0.78rem;
+            color: #a0aec0;
+            margin-bottom: 0.3rem;
+        }
+
+        input[type="number"], select {
+            width: 100%;
+            padding: 0.6rem 0.8rem;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.2s;
+        }
+
+        input[type="number"]:focus, select:focus {
+            outline: none;
+            border-color: #4299e1;
+            box-shadow: 0 0 0 3px rgba(66,153,225,0.15);
+        }
+
+        .btn {
+            display: block;
+            width: 100%;
+            padding: 0.8rem;
+            background: #4299e1;
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.05rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .btn:hover { background: #3182ce; }
+        .btn:disabled { background: #a0aec0; cursor: not-allowed; }
+
+        .result-card { text-align: center; padding: 2rem; }
+
+        .risk-pct {
+            font-size: 3rem;
+            font-weight: 700;
+            margin: 0.5rem 0;
+        }
+
+        .risk-label {
+            font-size: 1.2rem;
+            font-weight: 600;
+            padding: 0.3rem 1rem;
+            border-radius: 20px;
+            display: inline-block;
+            margin-top: 0.5rem;
+        }
+
+        .risk-low      { color: #276749; background: #c6f6d5; }
+        .risk-moderate  { color: #975a16; background: #fefcbf; }
+        .risk-high      { color: #9b2c2c; background: #fed7d7; }
+
+        .error-msg {
+            background: #fed7d7;
+            color: #9b2c2c;
+            padding: 1rem;
+            border-radius: 8px;
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .two-col {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        .hidden { display: none; }
+
+        .spinner {
+            display: inline-block;
+            width: 18px; height: 18px;
+            border: 3px solid #fff;
+            border-top-color: transparent;
+            border-radius: 50%;
+            animation: spin 0.6s linear infinite;
+            vertical-align: middle;
+            margin-right: 8px;
+        }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        @media (max-width: 500px) {
+            .two-col { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Diabetes Risk Prediction</h1>
+        <p class="subtitle">Enter your health indicators to estimate diabetes risk</p>
+
+        <div id="error-box" class="error-msg hidden"></div>
+
+        <div id="result-box" class="card result-card hidden">
+            <p style="color:#718096; font-size:0.9rem;">Estimated Diabetes Risk</p>
+            <div id="risk-pct" class="risk-pct"></div>
+            <span id="risk-label" class="risk-label"></span>
+        </div>
+
+        <div class="card">
+            <form id="predict-form">
+                <div class="two-col">
+                    <div class="form-group">
+                        <label for="age">Age Group</label>
+                        <div class="hint">1 = 18-24, 7 = 50-54, 13 = 80+</div>
+                        <select name="age" id="age">
+                            <option value="1">1 — 18-24</option>
+                            <option value="2">2 — 25-29</option>
+                            <option value="3">3 — 30-34</option>
+                            <option value="4">4 — 35-39</option>
+                            <option value="5">5 — 40-44</option>
+                            <option value="6">6 — 45-49</option>
+                            <option value="7" selected>7 — 50-54</option>
+                            <option value="8">8 — 55-59</option>
+                            <option value="9">9 — 60-64</option>
+                            <option value="10">10 — 65-69</option>
+                            <option value="11">11 — 70-74</option>
+                            <option value="12">12 — 75-79</option>
+                            <option value="13">13 — 80+</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="bmi">BMI</label>
+                        <div class="hint">e.g. 27.5</div>
+                        <input type="number" name="bmi" id="bmi" step="0.1" min="10" max="80" value="25.0">
+                    </div>
+                </div>
+
+                <div class="two-col">
+                    <div class="form-group">
+                        <label for="bp">High Blood Pressure</label>
+                        <select name="bp" id="bp">
+                            <option value="1">Yes</option>
+                            <option value="2" selected>No</option>
+                            <option value="3">Borderline</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="cholesterol">High Cholesterol</label>
+                        <select name="cholesterol" id="cholesterol">
+                            <option value="1">Yes</option>
+                            <option value="2" selected>No</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="two-col">
+                    <div class="form-group">
+                        <label for="smoker">Smoker (100+ cigarettes ever)</label>
+                        <select name="smoker" id="smoker">
+                            <option value="1">Yes</option>
+                            <option value="2" selected>No</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="activity">Physical Activity</label>
+                        <select name="activity" id="activity">
+                            <option value="1" selected>Active</option>
+                            <option value="2">Inactive</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="two-col">
+                    <div class="form-group">
+                        <label for="health">General Health</label>
+                        <select name="health" id="health">
+                            <option value="1">1 — Excellent</option>
+                            <option value="2">2 — Very Good</option>
+                            <option value="3" selected>3 — Good</option>
+                            <option value="4">4 — Fair</option>
+                            <option value="5">5 — Poor</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="mental">Mental Health (bad days)</label>
+                        <div class="hint">Days in past 30 with poor mental health</div>
+                        <input type="number" name="mental" id="mental" min="0" max="30" value="0">
+                    </div>
+                </div>
+
+                <button type="submit" class="btn" id="submit-btn">
+                    Predict Diabetes Risk
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = window.location.origin + "/api/predict";
+
+        const form = document.getElementById("predict-form");
+        const btn = document.getElementById("submit-btn");
+        const resultBox = document.getElementById("result-box");
+        const errorBox = document.getElementById("error-box");
+        const riskPct = document.getElementById("risk-pct");
+        const riskLabel = document.getElementById("risk-label");
+
+        form.addEventListener("submit", async (e) => {
+            e.preventDefault();
+            resultBox.classList.add("hidden");
+            errorBox.classList.add("hidden");
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner"></span> Predicting...';
+
+            const payload = {
+                age: parseFloat(document.getElementById("age").value),
+                bmi: parseFloat(document.getElementById("bmi").value),
+                bp: parseFloat(document.getElementById("bp").value),
+                cholesterol: parseFloat(document.getElementById("cholesterol").value),
+                smoker: parseFloat(document.getElementById("smoker").value),
+                activity: parseFloat(document.getElementById("activity").value),
+                health: parseFloat(document.getElementById("health").value),
+                mental: parseFloat(document.getElementById("mental").value),
+            };
+
+            try {
+                const res = await fetch(API_URL, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(payload),
+                });
+
+                if (!res.ok) {
+                    const err = await res.json();
+                    throw new Error(err.detail || `API error: ${res.status}`);
+                }
+
+                const data = await res.json();
+                riskPct.textContent = data.risk_percentage + "%";
+
+                riskLabel.textContent = data.risk_level + " Risk";
+                riskLabel.className = "risk-label";
+                if (data.risk_level === "Low") riskLabel.classList.add("risk-low");
+                else if (data.risk_level === "Moderate") riskLabel.classList.add("risk-moderate");
+                else riskLabel.classList.add("risk-high");
+
+                resultBox.classList.remove("hidden");
+            } catch (err) {
+                errorBox.textContent = err.message || "Failed to connect to prediction API.";
+                errorBox.classList.remove("hidden");
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = "Predict Diabetes Risk";
+            }
+        });
+    </script>
+</body>
+</html>

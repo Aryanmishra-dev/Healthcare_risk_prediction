@@ -21,6 +21,21 @@ A production-grade machine learning system for predicting **diabetes risk** usin
 ```
 Healthcare_risk_prediction/
 │
+├── fastapi_backend/
+│   ├── main.py                   # FastAPI prediction service
+│   ├── model_loader.py           # Model loading & inference logic
+│   ├── schemas.py                # Pydantic request/response schemas
+│   └── requirements.txt          # Backend-specific dependencies
+│
+├── django_ui/
+│   ├── manage.py                 # Django management script
+│   └── risk_ui/
+│       ├── settings.py           # Django settings
+│       ├── urls.py               # URL routing
+│       ├── views.py              # Prediction form view
+│       └── templates/
+│           └── predict.html      # Prediction UI template
+│
 ├── notebooks/
 │   └── brfss_cleaning.ipynb      # Full pipeline: cleaning → training → evaluation → SHAP
 │
@@ -126,12 +141,43 @@ python app/risk_assistant.py
 python app/risk_assistant.py --ui
 ```
 
+### FastAPI + Django (Web Deployment)
+
+**Terminal 1 — Start the FastAPI prediction API:**
+```bash
+uvicorn fastapi_backend.main:app --reload --port 8000
+```
+Swagger docs available at: http://127.0.0.1:8000/docs
+
+**Terminal 2 — Start the Django UI:**
+```bash
+cd django_ui
+python manage.py runserver 8001
+```
+Open http://127.0.0.1:8001 in your browser.
+
+### System Architecture
+```
+User Browser
+      │
+      ▼
+Django UI (port 8001)   →   Form input / result display
+      │
+      ▼
+FastAPI API (port 8000) →   ML inference / JSON response
+      │
+      ▼
+XGBoost Model (.pkl)    →   Calibrated probability
+```
+
 ---
 
 ## Tech Stack
 
-- **Python 3.13**
+- **Python 3.11**
 - pandas, NumPy, scikit-learn, XGBoost, SHAP, matplotlib
+- **FastAPI** + Uvicorn (ML inference API)
+- **Django** (Web UI layer)
 - Gradio (optional — interactive UI)
 - joblib (model serialisation)
 
