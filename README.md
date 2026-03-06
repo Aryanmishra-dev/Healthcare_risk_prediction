@@ -40,8 +40,10 @@ Healthcare_risk_prediction/
 │   └── brfss_cleaning.ipynb      # Full pipeline: cleaning → training → evaluation → SHAP
 │
 ├── models/
-│   ├── diabetes_xgboost.pkl      # Trained XGBoost model
-│   ├── isotonic_calibrator.pkl   # Probability calibrator
+│   ├── diabetes_xgboost.onnx     # XGBoost model (ONNX format — lightweight)
+│   ├── isotonic_calibration.npz  # Calibration thresholds (NumPy)
+│   ├── diabetes_xgboost.pkl      # Original XGBoost model (training/SHAP)
+│   ├── isotonic_calibrator.pkl   # Original calibrator (training)
 │   └── shap_explainer.pkl        # SHAP TreeExplainer
 │
 ├── app/
@@ -53,6 +55,14 @@ Healthcare_risk_prediction/
 ├── data_raw/                     # Raw BRFSS SAS file (not tracked — 1.1 GB)
 ├── data_processed/               # Cleaned CSV (not tracked)
 │
+├── api/
+│   ├── index.py                  # Vercel serverless entry point
+│   └── requirements.txt          # Lightweight deps for Vercel
+│
+├── public/
+│   └── index.html                # Static landing page
+│
+├── vercel.json                   # Vercel deployment config
 ├── requirements.txt
 ├── .gitignore
 └── README.md
@@ -156,6 +166,11 @@ python manage.py runserver 8001
 ```
 Open http://127.0.0.1:8001 in your browser.
 
+### Vercel (Production)
+The API is deployed as a Vercel serverless function. Push to `main` to deploy.
+
+Live API: `https://healthcare-risk-prediction-ll9bbcnez.vercel.app/api`
+
 ### System Architecture
 ```
 User Browser
@@ -167,19 +182,21 @@ Django UI (port 8001)   →   Form input / result display
 FastAPI API (port 8000) →   ML inference / JSON response
       │
       ▼
-XGBoost Model (.pkl)    →   Calibrated probability
+ONNX Runtime            →   Calibrated probability
+(diabetes_xgboost.onnx + isotonic_calibration.npz)
 ```
 
 ---
 
 ## Tech Stack
 
-- **Python 3.11**
-- pandas, NumPy, scikit-learn, XGBoost, SHAP, matplotlib
+- **Python 3.12+**
+- pandas, NumPy, scikit-learn, XGBoost, SHAP, matplotlib (training)
+- **ONNX Runtime** (production inference — no xgboost/sklearn needed)
 - **FastAPI** + Uvicorn (ML inference API)
 - **Django** (Web UI layer)
+- **Vercel** (serverless deployment)
 - Gradio (optional — interactive UI)
-- joblib (model serialisation)
 
 ---
 

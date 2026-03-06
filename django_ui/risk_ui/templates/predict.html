@@ -4,143 +4,336 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Diabetes Risk Prediction</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            background: #f0f4f8;
-            color: #1a202c;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: #f1f5f9;
+            color: #0f172a;
             min-height: 100vh;
-            display: flex;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #0f766e 0%, #0d9488 50%, #14b8a6 100%);
+            padding: 2.5rem 1rem 3.5rem;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -20%;
+            width: 400px;
+            height: 400px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 50%;
+        }
+
+        .header-icon {
+            width: 56px;
+            height: 56px;
+            background: rgba(255,255,255,0.15);
+            border-radius: 16px;
+            display: inline-flex;
+            align-items: center;
             justify-content: center;
-            padding: 2rem 1rem;
+            margin-bottom: 1rem;
+            backdrop-filter: blur(10px);
         }
 
-        .container {
-            max-width: 600px;
-            width: 100%;
+        .header-icon svg { width: 28px; height: 28px; fill: #fff; }
+
+        .header h1 {
+            color: #fff;
+            font-size: 1.75rem;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            margin-bottom: 0.4rem;
         }
 
-        h1 {
-            text-align: center;
-            font-size: 1.8rem;
-            margin-bottom: 0.5rem;
-            color: #2d3748;
-        }
-
-        .subtitle {
-            text-align: center;
-            color: #718096;
-            margin-bottom: 2rem;
+        .header .subtitle {
+            color: rgba(255,255,255,0.8);
             font-size: 0.95rem;
+        }
+
+        .main {
+            max-width: 720px;
+            margin: -2rem auto 2rem;
+            padding: 0 1rem;
+            position: relative;
+            z-index: 1;
         }
 
         .card {
             background: #fff;
-            border-radius: 12px;
-            padding: 2rem;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-            margin-bottom: 1.5rem;
+            border-radius: 16px;
+            padding: 1.75rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 8px 24px rgba(0,0,0,0.04);
+            margin-bottom: 1.25rem;
+            border: 1px solid rgba(0,0,0,0.04);
         }
 
-        .form-group {
-            margin-bottom: 1.2rem;
+        .section-title {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            margin-bottom: 1.25rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 2px solid #f1f5f9;
         }
 
-        label {
-            display: block;
-            font-weight: 600;
-            margin-bottom: 0.3rem;
-            font-size: 0.9rem;
-            color: #4a5568;
+        .section-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
         }
 
-        .hint {
-            font-size: 0.78rem;
-            color: #a0aec0;
-            margin-bottom: 0.3rem;
-        }
+        .section-icon svg { width: 18px; height: 18px; }
+        .section-icon.teal   { background: #ccfbf1; }
+        .section-icon.teal svg { fill: #0f766e; }
+        .section-icon.blue   { background: #dbeafe; }
+        .section-icon.blue svg { fill: #1d4ed8; }
+        .section-icon.amber  { background: #fef3c7; }
+        .section-icon.amber svg { fill: #b45309; }
+        .section-icon.purple { background: #ede9fe; }
+        .section-icon.purple svg { fill: #6d28d9; }
 
-        input[type="number"], select {
-            width: 100%;
-            padding: 0.6rem 0.8rem;
-            border: 1px solid #e2e8f0;
-            border-radius: 8px;
+        .section-title h2 {
             font-size: 1rem;
-            transition: border-color 0.2s;
-        }
-
-        input[type="number"]:focus, select:focus {
-            outline: none;
-            border-color: #4299e1;
-            box-shadow: 0 0 0 3px rgba(66,153,225,0.15);
-        }
-
-        .btn {
-            display: block;
-            width: 100%;
-            padding: 0.8rem;
-            background: #4299e1;
-            color: #fff;
-            border: none;
-            border-radius: 8px;
-            font-size: 1.05rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: background 0.2s;
-        }
-
-        .btn:hover { background: #3182ce; }
-
-        .result-card {
-            text-align: center;
-            padding: 2rem;
-        }
-
-        .risk-pct {
-            font-size: 3rem;
             font-weight: 700;
-            margin: 0.5rem 0;
+            color: #1e293b;
         }
 
-        .risk-label {
-            font-size: 1.2rem;
+        .section-title p {
+            font-size: 0.78rem;
+            color: #94a3b8;
+            margin-top: 0.1rem;
+        }
+
+        .feature-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            background: #f0fdfa;
+            color: #0f766e;
+            font-size: 0.72rem;
             font-weight: 600;
-            padding: 0.3rem 1rem;
+            padding: 0.3rem 0.65rem;
             border-radius: 20px;
-            display: inline-block;
-            margin-top: 0.5rem;
-        }
-
-        .risk-low      { color: #276749; background: #c6f6d5; }
-        .risk-moderate  { color: #975a16; background: #fefcbf; }
-        .risk-high      { color: #9b2c2c; background: #fed7d7; }
-
-        .error-msg {
-            background: #fed7d7;
-            color: #9b2c2c;
-            padding: 1rem;
-            border-radius: 8px;
-            text-align: center;
+            border: 1px solid #99f6e4;
             margin-bottom: 1.5rem;
         }
 
-        .two-col {
+        .form-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 1rem;
         }
 
-        @media (max-width: 500px) {
-            .two-col { grid-template-columns: 1fr; }
+        label {
+            display: flex;
+            align-items: center;
+            gap: 0.35rem;
+            font-weight: 600;
+            margin-bottom: 0.35rem;
+            font-size: 0.85rem;
+            color: #334155;
+        }
+
+        .hint {
+            font-size: 0.73rem;
+            color: #94a3b8;
+            margin-bottom: 0.35rem;
+        }
+
+        input[type="number"], select {
+            width: 100%;
+            padding: 0.55rem 0.75rem;
+            border: 1.5px solid #e2e8f0;
+            border-radius: 10px;
+            font-size: 0.92rem;
+            font-family: inherit;
+            color: #1e293b;
+            background: #f8fafc;
+            transition: all 0.2s ease;
+            appearance: none;
+            -webkit-appearance: none;
+        }
+
+        select {
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 0.75rem center;
+            padding-right: 2rem;
+        }
+
+        input[type="number"]:focus, select:focus {
+            outline: none;
+            border-color: #14b8a6;
+            background: #fff;
+            box-shadow: 0 0 0 3px rgba(20,184,166,0.12);
+        }
+
+        .btn-submit {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            width: 100%;
+            padding: 0.85rem 1.5rem;
+            background: linear-gradient(135deg, #0f766e, #0d9488);
+            color: #fff;
+            border: none;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 700;
+            font-family: inherit;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            box-shadow: 0 4px 12px rgba(13,148,136,0.25);
+            margin-top: 0.5rem;
+        }
+
+        .btn-submit:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 20px rgba(13,148,136,0.35);
+        }
+
+        .btn-submit svg { width: 20px; height: 20px; fill: #fff; }
+
+        .error-msg {
+            background: #fef2f2;
+            color: #991b1b;
+            padding: 1rem 1.25rem;
+            border-radius: 12px;
+            text-align: center;
+            margin-bottom: 1.25rem;
+            border: 1px solid #fecaca;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .result-card {
+            text-align: center;
+            padding: 2rem 1.75rem;
+            animation: slideUp 0.4s ease;
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(16px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        .result-header-text {
+            font-size: 0.85rem;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+
+        .risk-pct {
+            font-size: 3rem;
+            font-weight: 800;
+            margin: 0.5rem 0;
+            letter-spacing: -0.03em;
+        }
+
+        .risk-badge {
+            display: inline-block;
+            font-size: 0.85rem;
+            font-weight: 700;
+            padding: 0.3rem 1rem;
+            border-radius: 20px;
+            margin-top: 0.5rem;
+        }
+
+        .risk-low      { color: #166534; background: #dcfce7; }
+        .risk-moderate  { color: #92400e; background: #fef9c3; }
+        .risk-high      { color: #991b1b; background: #fee2e2; }
+
+        .pct-low      { color: #16a34a; }
+        .pct-moderate { color: #ca8a04; }
+        .pct-high     { color: #dc2626; }
+
+        .features-panel {
+            margin-top: 1.5rem;
+            padding-top: 1rem;
+            border-top: 1px solid #f1f5f9;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.5rem;
+        }
+
+        .feature-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.5rem 0.75rem;
+            background: #f8fafc;
+            border-radius: 8px;
+            font-size: 0.8rem;
+        }
+
+        .feature-item.interaction {
+            background: #f0fdfa;
+            border: 1px solid #ccfbf1;
+        }
+
+        .feature-name { color: #64748b; font-weight: 500; }
+        .feature-value { font-weight: 700; color: #1e293b; }
+
+        .feature-section-label {
+            grid-column: 1 / -1;
+            font-size: 0.72rem;
+            font-weight: 700;
+            color: #94a3b8;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            padding-top: 0.5rem;
+        }
+
+        .footer {
+            text-align: center;
+            padding: 1rem;
+            color: #94a3b8;
+            font-size: 0.75rem;
+        }
+
+        @media (max-width: 560px) {
+            .form-grid { grid-template-columns: 1fr; }
+            .features-grid { grid-template-columns: 1fr; }
+            .header { padding: 2rem 1rem 3rem; }
+            .header h1 { font-size: 1.4rem; }
         }
     </style>
 </head>
 <body>
-    <div class="container">
+
+    <div class="header">
+        <div class="header-icon">
+            <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.94-.49-7-3.85-7-7.93 0-.62.08-1.22.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg>
+        </div>
         <h1>Diabetes Risk Prediction</h1>
-        <p class="subtitle">Enter your health indicators to estimate diabetes risk</p>
+        <p class="subtitle">AI-powered health risk assessment using 13 clinical features</p>
+    </div>
+
+    <div class="main">
 
         {% if error %}
         <div class="error-msg">{{ error }}</div>
@@ -148,108 +341,197 @@
 
         {% if result %}
         <div class="card result-card">
-            <p style="color:#718096; font-size:0.9rem;">Estimated Diabetes Risk</p>
-            <div class="risk-pct">{{ result.risk_percentage }}%</div>
-            <span class="risk-label
+            <p class="result-header-text">Estimated Diabetes Risk</p>
+            <div class="risk-pct
+                {% if result.risk_level == 'Low' %}pct-low
+                {% elif result.risk_level == 'Moderate' %}pct-moderate
+                {% else %}pct-high{% endif %}">
+                {{ result.risk_percentage }}%
+            </div>
+            <span class="risk-badge
                 {% if result.risk_level == 'Low' %}risk-low
                 {% elif result.risk_level == 'Moderate' %}risk-moderate
                 {% else %}risk-high{% endif %}">
                 {{ result.risk_level }} Risk
             </span>
+
+            <div class="features-panel">
+                <div class="features-grid">
+                    <div class="feature-section-label">Input Features (8)</div>
+                    <div class="feature-item"><span class="feature-name">BMI</span><span class="feature-value">{{ form_data.bmi }}</span></div>
+                    <div class="feature-item"><span class="feature-name">Age Group</span><span class="feature-value">{{ form_data.age }}</span></div>
+                    <div class="feature-item"><span class="feature-name">High BP</span><span class="feature-value">{% if form_data.bp == 1 %}Yes{% else %}No{% endif %}</span></div>
+                    <div class="feature-item"><span class="feature-name">Smoker</span><span class="feature-value">{% if form_data.smoker == 1 %}Yes{% else %}No{% endif %}</span></div>
+                    <div class="feature-item"><span class="feature-name">High Cholesterol</span><span class="feature-value">{% if form_data.cholesterol == 1 %}Yes{% else %}No{% endif %}</span></div>
+                    <div class="feature-item"><span class="feature-name">Physical Activity</span><span class="feature-value">{% if form_data.activity == 1 %}Active{% else %}Inactive{% endif %}</span></div>
+                    <div class="feature-item"><span class="feature-name">General Health</span><span class="feature-value">{{ form_data.health }}</span></div>
+                    <div class="feature-item"><span class="feature-name">Mental Health</span><span class="feature-value">{{ form_data.mental }} days</span></div>
+                    <div class="feature-section-label">Interaction Features (5)</div>
+                    <div class="feature-item interaction"><span class="feature-name">BMI x Age</span><span class="feature-value">{{ result.bmi_age|default:"--" }}</span></div>
+                    <div class="feature-item interaction"><span class="feature-name">BMI x BP</span><span class="feature-value">{{ result.bmi_bp|default:"--" }}</span></div>
+                    <div class="feature-item interaction"><span class="feature-name">Age x BP</span><span class="feature-value">{{ result.age_bp|default:"--" }}</span></div>
+                    <div class="feature-item interaction"><span class="feature-name">Cholesterol x BMI</span><span class="feature-value">{{ result.chol_bmi|default:"--" }}</span></div>
+                    <div class="feature-item interaction"><span class="feature-name">Health x BMI</span><span class="feature-value">{{ result.health_bmi|default:"--" }}</span></div>
+                </div>
+            </div>
         </div>
         {% endif %}
 
-        <div class="card">
-            <form method="POST" action="">
-                {% csrf_token %}
+        <form method="POST" action="">
+            {% csrf_token %}
 
-                <div class="two-col">
+            <!-- Demographics -->
+            <div class="card">
+                <div class="section-title">
+                    <div class="section-icon teal">
+                        <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+                    </div>
+                    <div>
+                        <h2>Demographics</h2>
+                        <p>Age and body metrics</p>
+                    </div>
+                </div>
+                <div class="form-grid">
                     <div class="form-group">
-                        <label for="age">Age Group</label>
-                        <div class="hint">1 = 18-24, 7 = 45-49, 13 = 80+</div>
+                        <label>Age Group</label>
+                        <div class="hint">BRFSS 5-year age bands</div>
                         <select name="age" id="age">
-                            <option value="1" {% if form_data.age == 1 %}selected{% endif %}>1 — 18-24</option>
-                            <option value="2" {% if form_data.age == 2 %}selected{% endif %}>2 — 25-29</option>
-                            <option value="3" {% if form_data.age == 3 %}selected{% endif %}>3 — 30-34</option>
-                            <option value="4" {% if form_data.age == 4 %}selected{% endif %}>4 — 35-39</option>
-                            <option value="5" {% if form_data.age == 5 %}selected{% endif %}>5 — 40-44</option>
-                            <option value="6" {% if form_data.age == 6 %}selected{% endif %}>6 — 45-49</option>
-                            <option value="7" {% if form_data.age == 7 %}selected{% endif %}>7 — 50-54</option>
-                            <option value="8" {% if form_data.age == 8 %}selected{% endif %}>8 — 55-59</option>
-                            <option value="9" {% if form_data.age == 9 %}selected{% endif %}>9 — 60-64</option>
-                            <option value="10" {% if form_data.age == 10 %}selected{% endif %}>10 — 65-69</option>
-                            <option value="11" {% if form_data.age == 11 %}selected{% endif %}>11 — 70-74</option>
-                            <option value="12" {% if form_data.age == 12 %}selected{% endif %}>12 — 75-79</option>
-                            <option value="13" {% if form_data.age == 13 %}selected{% endif %}>13 — 80+</option>
+                            {% for val, text in age_choices %}
+                            <option value="{{ val }}" {% if form_data.age == val %}selected{% endif %}>{{ text }}</option>
+                            {% empty %}
+                            <option value="1" {% if form_data.age == 1 %}selected{% endif %}>18 - 24</option>
+                            <option value="2" {% if form_data.age == 2 %}selected{% endif %}>25 - 29</option>
+                            <option value="3" {% if form_data.age == 3 %}selected{% endif %}>30 - 34</option>
+                            <option value="4" {% if form_data.age == 4 %}selected{% endif %}>35 - 39</option>
+                            <option value="5" {% if form_data.age == 5 %}selected{% endif %}>40 - 44</option>
+                            <option value="6" {% if form_data.age == 6 %}selected{% endif %}>45 - 49</option>
+                            <option value="7" {% if form_data.age == 7 or not form_data %}selected{% endif %}>50 - 54</option>
+                            <option value="8" {% if form_data.age == 8 %}selected{% endif %}>55 - 59</option>
+                            <option value="9" {% if form_data.age == 9 %}selected{% endif %}>60 - 64</option>
+                            <option value="10" {% if form_data.age == 10 %}selected{% endif %}>65 - 69</option>
+                            <option value="11" {% if form_data.age == 11 %}selected{% endif %}>70 - 74</option>
+                            <option value="12" {% if form_data.age == 12 %}selected{% endif %}>75 - 79</option>
+                            <option value="13" {% if form_data.age == 13 %}selected{% endif %}>80+</option>
+                            {% endfor %}
                         </select>
                     </div>
-
                     <div class="form-group">
-                        <label for="bmi">BMI</label>
-                        <div class="hint">e.g. 27.5</div>
+                        <label>BMI</label>
+                        <div class="hint">Body Mass Index (kg/m&sup2;)</div>
                         <input type="number" name="bmi" id="bmi" step="0.1" min="10" max="80"
                                value="{{ form_data.bmi|default:'25.0' }}">
                     </div>
                 </div>
+            </div>
 
-                <div class="two-col">
+            <!-- Health Conditions -->
+            <div class="card">
+                <div class="section-title">
+                    <div class="section-icon blue">
+                        <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 3c1.93 0 3.5 1.57 3.5 3.5 0 2.47-3.5 6.5-3.5 6.5S8.5 11.97 8.5 9.5C8.5 7.57 10.07 6 12 6zm0 5a1.5 1.5 0 010-3 1.5 1.5 0 010 3z"/></svg>
+                    </div>
+                    <div>
+                        <h2>Health Conditions</h2>
+                        <p>Existing medical conditions</p>
+                    </div>
+                </div>
+                <div class="form-grid">
                     <div class="form-group">
-                        <label for="bp">High Blood Pressure</label>
+                        <label>High Blood Pressure</label>
+                        <div class="hint">Diagnosed by a doctor</div>
                         <select name="bp" id="bp">
                             <option value="1" {% if form_data.bp == 1 %}selected{% endif %}>Yes</option>
-                            <option value="0" {% if form_data.bp == 0 %}selected{% endif %} selected>No</option>
+                            <option value="0" {% if form_data.bp == 0 or not form_data %}selected{% endif %}>No</option>
                         </select>
                     </div>
-
                     <div class="form-group">
-                        <label for="cholesterol">High Cholesterol</label>
+                        <label>High Cholesterol</label>
+                        <div class="hint">Diagnosed by a doctor</div>
                         <select name="cholesterol" id="cholesterol">
                             <option value="1" {% if form_data.cholesterol == 1 %}selected{% endif %}>Yes</option>
-                            <option value="0" {% if form_data.cholesterol == 0 %}selected{% endif %} selected>No</option>
+                            <option value="0" {% if form_data.cholesterol == 0 or not form_data %}selected{% endif %}>No</option>
                         </select>
                     </div>
                 </div>
+            </div>
 
-                <div class="two-col">
+            <!-- Lifestyle -->
+            <div class="card">
+                <div class="section-title">
+                    <div class="section-icon amber">
+                        <svg viewBox="0 0 24 24"><path d="M13.49 5.48c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm-3.6 13.9l1-4.4 2.1 2v6h2v-7.5l-2.1-2 .6-3c1.3 1.5 3.3 2.5 5.5 2.5v-2c-1.9 0-3.5-1-4.3-2.4l-1-1.6c-.4-.6-1-1-1.7-1-.3 0-.5.1-.8.1l-5.2 2.2v4.7h2v-3.4l1.8-.7-1.6 8.1-4.9-1-.4 2 7 1.4z"/></svg>
+                    </div>
+                    <div>
+                        <h2>Lifestyle</h2>
+                        <p>Activity and habits</p>
+                    </div>
+                </div>
+                <div class="form-grid">
                     <div class="form-group">
-                        <label for="smoker">Smoker (100+ cigarettes ever)</label>
+                        <label>Smoker</label>
+                        <div class="hint">Smoked 100+ cigarettes in lifetime</div>
                         <select name="smoker" id="smoker">
                             <option value="1" {% if form_data.smoker == 1 %}selected{% endif %}>Yes</option>
-                            <option value="0" {% if form_data.smoker == 0 %}selected{% endif %} selected>No</option>
+                            <option value="0" {% if form_data.smoker == 0 or not form_data %}selected{% endif %}>No</option>
                         </select>
                     </div>
-
                     <div class="form-group">
-                        <label for="activity">Physical Activity</label>
+                        <label>Physical Activity</label>
+                        <div class="hint">Exercise in the past 30 days</div>
                         <select name="activity" id="activity">
-                            <option value="1" {% if form_data.activity == 1 %}selected{% endif %} selected>Active</option>
+                            <option value="1" {% if form_data.activity == 1 or not form_data %}selected{% endif %}>Active</option>
                             <option value="0" {% if form_data.activity == 0 %}selected{% endif %}>Inactive</option>
                         </select>
                     </div>
                 </div>
+            </div>
 
-                <div class="two-col">
+            <!-- Self-Assessment -->
+            <div class="card">
+                <div class="section-title">
+                    <div class="section-icon purple">
+                        <svg viewBox="0 0 24 24"><path d="M9 21c0 .55.45 1 1 1h4c.55 0 1-.45 1-1v-1H9v1zm3-19C8.14 2 5 5.14 5 9c0 2.38 1.19 4.47 3 5.74V17c0 .55.45 1 1 1h6c.55 0 1-.45 1-1v-2.26c1.81-1.27 3-3.36 3-5.74 0-3.86-3.14-7-7-7z"/></svg>
+                    </div>
+                    <div>
+                        <h2>Self-Assessment</h2>
+                        <p>How you rate your health</p>
+                    </div>
+                </div>
+                <div class="form-grid">
                     <div class="form-group">
-                        <label for="health">General Health</label>
+                        <label>General Health</label>
+                        <div class="hint">Overall self-rated health</div>
                         <select name="health" id="health">
-                            <option value="1" {% if form_data.health == 1 %}selected{% endif %}>1 — Excellent</option>
-                            <option value="2" {% if form_data.health == 2 %}selected{% endif %}>2 — Very Good</option>
-                            <option value="3" {% if form_data.health == 3 %}selected{% endif %} selected>3 — Good</option>
-                            <option value="4" {% if form_data.health == 4 %}selected{% endif %}>4 — Fair</option>
-                            <option value="5" {% if form_data.health == 5 %}selected{% endif %}>5 — Poor</option>
+                            <option value="1" {% if form_data.health == 1 %}selected{% endif %}>Excellent</option>
+                            <option value="2" {% if form_data.health == 2 %}selected{% endif %}>Very Good</option>
+                            <option value="3" {% if form_data.health == 3 or not form_data %}selected{% endif %}>Good</option>
+                            <option value="4" {% if form_data.health == 4 %}selected{% endif %}>Fair</option>
+                            <option value="5" {% if form_data.health == 5 %}selected{% endif %}>Poor</option>
                         </select>
                     </div>
-
                     <div class="form-group">
-                        <label for="mental">Mental Health (bad days)</label>
-                        <div class="hint">Days in past 30 with poor mental health</div>
+                        <label>Mental Health</label>
+                        <div class="hint">Days of poor mental health (past 30)</div>
                         <input type="number" name="mental" id="mental" min="0" max="30"
                                value="{{ form_data.mental|default:'0' }}">
                     </div>
                 </div>
+            </div>
 
-                <button type="submit" class="btn">Predict Diabetes Risk</button>
-            </form>
+            <div class="card" style="text-align:center;">
+                <div class="feature-badge">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="#0f766e"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/></svg>
+                    8 inputs + 5 computed interaction features = 13 total model features
+                </div>
+                <button type="submit" class="btn-submit">
+                    <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 3c1.93 0 3.5 1.57 3.5 3.5 0 2.47-3.5 6.5-3.5 6.5S8.5 11.97 8.5 9.5C8.5 7.57 10.07 6 12 6zm0 5a1.5 1.5 0 010-3 1.5 1.5 0 010 3z"/></svg>
+                    Predict Diabetes Risk
+                </button>
+            </div>
+        </form>
+
+        <div class="footer">
+            Powered by XGBoost + ONNX Runtime &middot; BRFSS 2015 Survey Data
         </div>
     </div>
 </body>

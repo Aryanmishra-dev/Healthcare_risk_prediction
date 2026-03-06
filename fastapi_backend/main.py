@@ -15,7 +15,8 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
+from fastapi.responses import FileResponse, JSONResponse
+from fastapi.staticfiles import StaticFiles
 
 from fastapi_backend.schemas import PredictionRequest, PredictionResponse
 from fastapi_backend.model_loader import load_models, predict
@@ -73,6 +74,12 @@ async def rate_limit_middleware(request: Request, call_next):
 
 
 @app.get("/")
+def serve_index():
+    """Serve the frontend UI."""
+    index_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "public", "index.html")
+    return FileResponse(index_path)
+
+
 @app.get("/api")
 def root():
     return {"service": "Diabetes Risk Prediction API", "status": "running"}
@@ -97,3 +104,9 @@ def make_prediction(data: PredictionRequest):
         mental_health=data.mental,
     )
     return PredictionResponse(**result)
+
+
+# ── Serve public/ static assets (CSS, JS, images if any) ──────────────────
+_PUBLIC_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "public")
+if os.path.isdir(_PUBLIC_DIR):
+    app.mount("/", StaticFiles(directory=_PUBLIC_DIR), name="static")

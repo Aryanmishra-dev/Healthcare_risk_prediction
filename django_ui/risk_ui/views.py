@@ -26,7 +26,14 @@ def predict_view(request):
             }
             response = requests.post(FASTAPI_URL, json=payload, timeout=10)
             response.raise_for_status()
-            context["result"] = response.json()
+            result = response.json()
+            # Add computed interaction features for template display
+            result["bmi_age"] = round(payload["bmi"] * payload["age"], 1)
+            result["bmi_bp"] = round(payload["bmi"] * payload["bp"], 1)
+            result["age_bp"] = round(payload["age"] * payload["bp"], 1)
+            result["chol_bmi"] = round(payload["cholesterol"] * payload["bmi"], 1)
+            result["health_bmi"] = round(payload["health"] * payload["bmi"], 1)
+            context["result"] = result
             context["form_data"] = payload
         except requests.exceptions.ConnectionError:
             context["error"] = "Cannot connect to the prediction API. Make sure the FastAPI server is running on port 8000."
