@@ -108,12 +108,12 @@ def cli():
         try:
             age   = float(input("Age group  (1-13, 1=18-24 … 13=80+) : "))
             bmi   = float(input("BMI        (e.g. 27.5)              : "))
-            bp    = float(input("High BP    (1=Yes 2=No 3=Border)    : "))
-            smoke = float(input("Smoker     (1=Yes 2=No)             : "))
-            chol  = float(input("High chol  (1=Yes 2=No)             : "))
-            pa    = float(input("Phys act   (1=Active 2=Inactive)    : "))
+            bp    = float(input("High BP    (1=Yes 0=No)             : "))
+            smoke = float(input("Smoker     (1=Yes 0=No)             : "))
+            chol  = float(input("High chol  (1=Yes 0=No)             : "))
+            pa    = float(input("Phys act   (1=Active 0=Inactive)    : "))
             gh    = float(input("Gen health (1=Excellent … 5=Poor)   : "))
-            mh    = float(input("Mental hlth days (0-30, 88=none)    : "))
+            mh    = float(input("Mental hlth days (0-30)             : "))
         except (ValueError, EOFError):
             break
 
@@ -143,12 +143,12 @@ def launch_ui():
         inputs=[
             gr.Slider(1, 13, step=1, value=7, label="Age Group (1=18-24 … 13=80+)"),
             gr.Number(value=27.5, label="BMI"),
-            gr.Radio([("Yes", 1), ("No", 2), ("Borderline", 3)], value=2, label="High Blood Pressure"),
-            gr.Radio([("Yes", 1), ("No", 2)], value=2, label="Smoker (100+ cigarettes ever)"),
-            gr.Radio([("Yes", 1), ("No", 2)], value=2, label="High Cholesterol"),
-            gr.Radio([("Active", 1), ("Inactive", 2)], value=1, label="Physical Activity"),
+            gr.Radio([("Yes", 1), ("No", 0)], value=0, label="High Blood Pressure"),
+            gr.Radio([("Yes", 1), ("No", 0)], value=0, label="Smoker (100+ cigarettes ever)"),
+            gr.Radio([("Yes", 1), ("No", 0)], value=0, label="High Cholesterol"),
+            gr.Radio([("Active", 1), ("Inactive", 0)], value=1, label="Physical Activity"),
             gr.Slider(1, 5, step=1, value=3, label="General Health (1=Excellent … 5=Poor)"),
-            gr.Number(value=0, label="Days of Poor Mental Health (0-30, 88=none)"),
+            gr.Number(value=0, label="Days of Poor Mental Health (0-30)"),
         ],
         outputs=gr.Textbox(label="Risk Assessment", lines=16),
         title="🩺 Diabetes Risk Calculator",

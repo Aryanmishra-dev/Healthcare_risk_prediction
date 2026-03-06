@@ -197,8 +197,7 @@
                         <label for="bp">High Blood Pressure</label>
                         <select name="bp" id="bp">
                             <option value="1" {% if form_data.bp == 1 %}selected{% endif %}>Yes</option>
-                            <option value="2" {% if form_data.bp == 2 %}selected{% endif %} selected>No</option>
-                            <option value="3" {% if form_data.bp == 3 %}selected{% endif %}>Borderline</option>
+                            <option value="0" {% if form_data.bp == 0 %}selected{% endif %} selected>No</option>
                         </select>
                     </div>
 
@@ -206,7 +205,7 @@
                         <label for="cholesterol">High Cholesterol</label>
                         <select name="cholesterol" id="cholesterol">
                             <option value="1" {% if form_data.cholesterol == 1 %}selected{% endif %}>Yes</option>
-                            <option value="2" {% if form_data.cholesterol == 2 %}selected{% endif %} selected>No</option>
+                            <option value="0" {% if form_data.cholesterol == 0 %}selected{% endif %} selected>No</option>
                         </select>
                     </div>
                 </div>
@@ -216,7 +215,7 @@
                         <label for="smoker">Smoker (100+ cigarettes ever)</label>
                         <select name="smoker" id="smoker">
                             <option value="1" {% if form_data.smoker == 1 %}selected{% endif %}>Yes</option>
-                            <option value="2" {% if form_data.smoker == 2 %}selected{% endif %} selected>No</option>
+                            <option value="0" {% if form_data.smoker == 0 %}selected{% endif %} selected>No</option>
                         </select>
                     </div>
 
@@ -224,7 +223,7 @@
                         <label for="activity">Physical Activity</label>
                         <select name="activity" id="activity">
                             <option value="1" {% if form_data.activity == 1 %}selected{% endif %} selected>Active</option>
-                            <option value="2" {% if form_data.activity == 2 %}selected{% endif %}>Inactive</option>
+                            <option value="0" {% if form_data.activity == 0 %}selected{% endif %}>Inactive</option>
                         </select>
                     </div>
                 </div>

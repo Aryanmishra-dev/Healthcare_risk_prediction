@@ -17,9 +17,9 @@ def predict_view(request):
             payload = {
                 "age": float(request.POST.get("age", 7)),
                 "bmi": float(request.POST.get("bmi", 25)),
-                "bp": float(request.POST.get("bp", 2)),
-                "cholesterol": float(request.POST.get("cholesterol", 2)),
-                "smoker": float(request.POST.get("smoker", 2)),
+                "bp": float(request.POST.get("bp", 0)),
+                "cholesterol": float(request.POST.get("cholesterol", 0)),
+                "smoker": float(request.POST.get("smoker", 0)),
                 "activity": float(request.POST.get("activity", 1)),
                 "health": float(request.POST.get("health", 3)),
                 "mental": float(request.POST.get("mental", 0)),
