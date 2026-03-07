@@ -1,38 +1,26 @@
 """
 Model loading and prediction logic for the diabetes risk API.
-
-Uses ONNX Runtime for lightweight inference (no xgboost/sklearn needed at runtime).
-Isotonic calibration is done via numpy interpolation from saved threshold arrays.
 """
 
 import os
 import numpy as np
-import onnxruntime as ort
+import pandas as pd
+import joblib
 
 # ── Paths ──────────────────────────────────────────────────────────────────
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 MODEL_DIR = os.path.join(ROOT, "models")
 
 # ── Loaded at import time (module-level singletons) ───────────────────────
-_onnx_session = None
-_iso_x = None
-_iso_y = None
+_xgb_model = None
+_iso_reg = None
 
 
 def load_models():
-    """Load the ONNX model and isotonic calibration data from disk."""
-    global _onnx_session, _iso_x, _iso_y
-    _onnx_session = ort.InferenceSession(
-        os.path.join(MODEL_DIR, "diabetes_xgboost.onnx")
-    )
-    cal = np.load(os.path.join(MODEL_DIR, "isotonic_calibration.npz"))
-    _iso_x = cal["X_thresholds"]
-    _iso_y = cal["y_thresholds"]
-
-
-def _isotonic_predict(raw_prob: float) -> float:
-    """Apply isotonic calibration via numpy interpolation."""
-    return float(np.interp(raw_prob, _iso_x, _iso_y))
+    """Load the trained XGBoost model and isotonic calibrator from disk."""
+    global _xgb_model, _iso_reg
+    _xgb_model = joblib.load(os.path.join(MODEL_DIR, "diabetes_xgboost.pkl"))
+    _iso_reg = joblib.load(os.path.join(MODEL_DIR, "isotonic_calibrator.pkl"))
 
 
 def build_feature_vector(
@@ -44,17 +32,24 @@ def build_feature_vector(
     physical_activity: float,
     general_health: float,
     mental_health: float,
-) -> np.ndarray:
-    """Build a single-row numpy array with all 13 features."""
-    return np.array(
-        [[
-            bmi, age_group, high_bp, smoker, high_cholesterol,
-            physical_activity, general_health, mental_health,
-            bmi * age_group, bmi * high_bp, age_group * high_bp,
-            high_cholesterol * bmi, general_health * bmi,
-        ]],
-        dtype=np.float32,
-    )
+) -> pd.DataFrame:
+    """Build a single-row DataFrame with all 13 features."""
+    features = {
+        "bmi": bmi,
+        "age_group": age_group,
+        "high_bp": high_bp,
+        "smoker": smoker,
+        "high_cholesterol": high_cholesterol,
+        "physical_activity": physical_activity,
+        "general_health": general_health,
+        "mental_health": mental_health,
+        "bmi_age": bmi * age_group,
+        "bmi_bp": bmi * high_bp,
+        "age_bp": age_group * high_bp,
+        "chol_bmi": high_cholesterol * bmi,
+        "health_bmi": general_health * bmi,
+    }
+    return pd.DataFrame([features]).astype(np.float64)
 
 
 def predict(
@@ -71,16 +66,13 @@ def predict(
     Run inference and return risk percentage + level.
     Uses isotonic calibration for well-calibrated probabilities.
     """
-    features = build_feature_vector(
+    df = build_feature_vector(
         age_group, bmi, high_bp, smoker, high_cholesterol,
         physical_activity, general_health, mental_health,
     )
 
-    # ONNX returns [labels, probabilities]; probabilities is a list of dicts
-    results = _onnx_session.run(None, {"features": features})
-    raw_prob = float(results[1][0][1])
-
-    cal_prob = _isotonic_predict(raw_prob)
+    raw_prob = _xgb_model.predict_proba(df)[:, 1][0]
+    cal_prob = float(_iso_reg.predict([raw_prob])[0])
     risk_pct = round(cal_prob * 100, 1)
 
     if risk_pct <= 30:
