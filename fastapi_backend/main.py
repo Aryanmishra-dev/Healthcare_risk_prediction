@@ -1,5 +1,5 @@
 """
-FastAPI Diabetes Risk Prediction Service.
+FastAPI Healthcare Risk Prediction Service.
 
 Run locally:
     uvicorn fastapi_backend.main:app --reload --port 8000
@@ -14,8 +14,16 @@ from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
-from fastapi_backend.schemas import PredictionRequest, PredictionResponse
-from fastapi_backend.model_loader import load_models, predict
+from fastapi_backend.schemas import (
+    PredictionRequest,
+    PredictionResponse,
+    HeartDiseasePredictionRequest,
+)
+from fastapi_backend.model_loader import (
+    load_models,
+    predict,
+    predict_heart_disease,
+)
 
 # ── Rate limiting ──────────────────────────────────────────────────────────
 RATE_LIMIT = int(os.environ.get("RATE_LIMIT_PER_MINUTE", "60"))
@@ -30,9 +38,9 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(
-    title="Diabetes Risk Prediction API",
-    description="Predicts diabetes risk from health indicators using a trained XGBoost model.",
-    version="1.0.0",
+    title="Healthcare Risk Prediction API",
+    description="Predicts disease risk from health indicators using trained XGBoost models.",
+    version="2.0.0",
     lifespan=lifespan,
     docs_url="/api/docs",
     openapi_url="/api/openapi.json",
@@ -41,14 +49,15 @@ app = FastAPI(
 # ── CORS ───────────────────────────────────────────────────────────────────
 ALLOWED_ORIGINS = os.environ.get(
     "CORS_ORIGINS",
-    "http://localhost:3000,http://localhost:8000,http://127.0.0.1:8000",
+    "http://localhost:3000,http://localhost:8000,http://localhost:8001,http://127.0.0.1:8000,http://127.0.0.1:8001",
 ).split(",")
 
 app.add_middleware(
     CORSMiddleware,
     allow_origins=ALLOWED_ORIGINS,
     allow_methods=["GET", "POST"],
-    allow_headers=["Content-Type"],
+    allow_headers=["Content-Type", "Accept"],
+    allow_credentials=False,
 )
 
 
@@ -69,15 +78,27 @@ async def rate_limit_middleware(request: Request, call_next):
     return await call_next(request)
 
 
+# ══════════════════════════════════════════════════════════════════════════
+#  Root
+# ══════════════════════════════════════════════════════════════════════════
+
 @app.get("/")
 @app.get("/api")
 def root():
-    return {"service": "Diabetes Risk Prediction API", "status": "running"}
+    return {
+        "service": "Healthcare Risk Prediction API",
+        "status": "running",
+        "models": ["diabetes", "heart_disease"],
+    }
 
+
+# ══════════════════════════════════════════════════════════════════════════
+#  Diabetes Prediction
+# ══════════════════════════════════════════════════════════════════════════
 
 @app.post("/predict", response_model=PredictionResponse)
 @app.post("/api/predict", response_model=PredictionResponse)
-def make_prediction(data: PredictionRequest):
+def make_diabetes_prediction(data: PredictionRequest):
     """
     Predict diabetes risk from health indicators.
 
@@ -92,5 +113,36 @@ def make_prediction(data: PredictionRequest):
         physical_activity=data.activity,
         general_health=data.health,
         mental_health=data.mental,
+    )
+    return PredictionResponse(**result)
+
+
+# ══════════════════════════════════════════════════════════════════════════
+#  Heart Disease Prediction
+# ══════════════════════════════════════════════════════════════════════════
+
+@app.post("/predict-heart", response_model=PredictionResponse)
+@app.post("/api/predict-heart", response_model=PredictionResponse)
+def make_heart_disease_prediction(data: HeartDiseasePredictionRequest):
+    """
+    Predict heart disease risk from health indicators.
+
+    Returns risk percentage (0-100) and risk level (Low/Moderate/High).
+    """
+    result = predict_heart_disease(
+        age=data.age,
+        sex=data.sex,
+        bmi=data.bmi,
+        high_bp=data.high_bp,
+        high_chol=data.high_chol,
+        smoker=data.smoker,
+        phys_activity=data.phys_activity,
+        fruits=data.fruits,
+        veggies=data.veggies,
+        heavy_drinker=data.heavy_drinker,
+        gen_health=data.gen_health,
+        ment_health=data.ment_health,
+        phys_health=data.phys_health,
+        diabetes=data.diabetes,
     )
     return PredictionResponse(**result)
